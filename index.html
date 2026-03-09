@@ -25,20 +25,19 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
         
-        /* Header & Tombol Refresh */
+        /* Header & Indikator Firebase */
         .header { 
             background: var(--primary); color: white; padding: 20px 20px 60px 20px; 
             text-align: center; font-size: 20px; font-weight: bold; border-radius: 0 0 20px 20px; 
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: relative;
         }
-        
-        .btn-refresh {
-            position: absolute; right: 20px; top: 20px; background: none; border: none; 
-            color: white; font-size: 20px; cursor: pointer; transition: transform 0.2s;
+
+        .status-dot {
+            position: absolute; right: 20px; top: 25px; width: 12px; height: 12px;
+            background-color: #fbbf24; border-radius: 50%; box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
+            transition: background-color 0.3s;
         }
-        .btn-refresh:active { transform: scale(0.8); }
-        .spin { animation: spinAnim 1s linear infinite; }
-        @keyframes spinAnim { 100% { transform: rotate(360deg); } }
+        .status-dot.online { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.8); }
 
         /* Toast Loading Indicator */
         .toast-loading {
@@ -52,16 +51,13 @@
 
         .container { max-width: 600px; margin: auto; padding: 0 15px; }
 
-        /* Kartu Saldo Utama */
         .saldo-card { background: linear-gradient(500deg, #1e3a8a 100%); color: white; padding: 25px 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); margin-top: -40px; position: relative; z-index: 10; margin-bottom: 20px; }
         .saldo-card h3 { font-size: 14px; font-weight: normal; opacity: 0.9; margin-bottom: 5px; }
         .saldo-card p { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; }
         
-        /* Badge Total Saldo */
         .saldo-sub { margin-top: 15px; font-size: 13px; background: rgba(255, 255, 255, 0.15); padding: 8px 16px; border-radius: 20px; display: inline-block; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); }
         .saldo-sub span { font-weight: bold; font-size: 14px; margin-left: 5px; }
 
-        /* Grid Ringkasan */
         .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
         .summary-item { background: var(--bg-card); padding: 15px 10px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .summary-item h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
@@ -70,33 +66,20 @@
         .text-expense { color: var(--expense); }
         .text-debt { color: var(--debt); }
 
-        /* Form Input */
         .form-section { background: var(--bg-card); padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .form-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
         
-        /* --- EFEK INPUT --- */
         .form-group input { 
             width: 100%; padding: 12px 14px; border: 2px solid var(--border-color); 
             border-radius: 10px; font-size: 14px; background: #f9fafb; outline: none; 
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-            height: 48px; box-sizing: border-box; color: var(--text-main); font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); height: 48px; box-sizing: border-box; color: var(--text-main); font-weight: 500;
         }
-        .form-group input:focus { 
-            border-color: var(--primary); 
-            background: white; 
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); 
-            transform: translateY(-2px); 
-        }
+        .form-group input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); transform: translateY(-2px); }
 
-        /* --- KOTAK PEMICU JENIS TRANSAKSI --- */
         .custom-select-trigger {
-            width: 100%; padding: 12px 14px; border: 2px solid var(--border-color); 
-            border-radius: 10px; font-size: 14px; background: #f9fafb; 
-            transition: all 0.2s ease; height: 48px; box-sizing: border-box; 
-            color: var(--text-main); font-weight: 500; display: flex; 
-            justify-content: space-between; align-items: center; cursor: pointer;
+            width: 100%; padding: 12px 14px; border: 2px solid var(--border-color); border-radius: 10px; font-size: 14px; background: #f9fafb; transition: all 0.2s ease; height: 48px; box-sizing: border-box; color: var(--text-main); font-weight: 500; display: flex; justify-content: space-between; align-items: center; cursor: pointer;
         }
         .custom-select-trigger:active { background: #e0e7ff; transform: scale(0.98); }
         .custom-select-arrow { font-size: 12px; color: var(--text-muted); }
@@ -106,7 +89,6 @@
         .btn-submit { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: bold; transition: all 0.2s; margin-top: 5px; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); }
         .btn-submit:active { transform: scale(0.97); box-shadow: 0 0px 0px rgba(79, 70, 229, 0); }
 
-        /* Riwayat Transaksi */
         .list-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; }
         .transaction-list { display: flex; flex-direction: column; gap: 12px; }
         
@@ -128,7 +110,6 @@
 
         .empty-state { text-align: center; color: var(--text-muted); font-size: 14px; padding: 20px 0; }
 
-        /* --- UI POP-UP TENGAH UNTUK MENU JENIS TRANSAKSI --- */
         .bottom-sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s ease; display: flex; align-items: center; justify-content: center; }
         .bottom-sheet-overlay.show { opacity: 1; visibility: visible; }
         
@@ -144,7 +125,6 @@
         .sheet-option.opt-hutang { color: var(--debt); }
         .sheet-option.selected { border-color: var(--primary); background: #eff6ff; }
 
-        /* --- UI MODAL POP-UP HAPUS --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 1001; opacity: 0; transition: opacity 0.2s ease-in-out; }
         .modal-overlay.show { opacity: 1; }
         .modal-content { background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 25px 20px; text-align: center; transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
@@ -165,11 +145,11 @@
 
     <div class="header">
         DompetKu
-        <button id="btn-refresh" class="btn-refresh" onclick="manualRefresh()" aria-label="Refresh Data">🔄</button>
+        <div id="status-dot" class="status-dot" title="Connecting to Firebase..."></div>
     </div>
 
     <div id="toast-loading" class="toast-loading">
-        <span class="spin">⏳</span> Menyinkronkan Data...
+        <span class="spin">⏳</span> Memproses...
     </div>
 
     <div class="container">
@@ -244,19 +224,51 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
-        // PASTIKAN URL WEB APP GOOGLE APPS SCRIPT KAMU BENAR
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-o4-qhZxnani5ZJ7PiczF0lN1iIoMgBzj2_ZQuV1okD_s1ACrqvgNT1Xwdi6HGtZ7/exec';
+        // ==========================================
+        // 1. KONFIGURASI FIREBASE KAMU DI SINI
+        // ==========================================
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyATTNNn1r1ORYTFWdljzd4dessh8t33SbI",
+  authDomain: "ppk-ormawa-42e49.firebaseapp.com",
+  databaseURL: "https://ppk-ormawa-42e49-default-rtdb.firebaseio.com",
+  projectId: "ppk-ormawa-42e49",
+  storageBucket: "ppk-ormawa-42e49.firebasestorage.app",
+  messagingSenderId: "629446223042",
+  appId: "1:629446223042:web:092fe22b2bdb868ba2c75b",
+  
+};
+
+        // Inisialisasi Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const transactionsRef = db.ref('dompetku_transactions');
+
+        // Indikator Status Koneksi Firebase
+        const connectedRef = firebase.database().ref(".info/connected");
+        connectedRef.on("value", (snap) => {
+            const dot = document.getElementById('status-dot');
+            if (snap.val() === true) {
+                dot.classList.add('online');
+                dot.title = "Firebase Online";
+            } else {
+                dot.classList.remove('online');
+                dot.title = "Offline / Connecting...";
+            }
+        });
+
+        // ==========================================
+        // 2. VARIABEL & INISIALISASI UI
+        // ==========================================
         let transactions = [];
         let idYangAkanDihapus = null;
 
         flatpickr("#date", {
-            locale: "id",          
-            dateFormat: "Y-m-d",   
-            defaultDate: "today",  
-            disableMobile: "true", 
-            altInput: true,        
-            altFormat: "d M Y",    
+            locale: "id", dateFormat: "Y-m-d", defaultDate: "today", disableMobile: "true", altInput: true, altFormat: "d M Y",    
         });
         
         function bukaSheetJenis() { document.getElementById('sheetJenis').classList.add('show'); }
@@ -283,12 +295,23 @@
             return isNaN(dateObj) ? stringTanggal : dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
+        function showLoading(show) {
+            const toast = document.getElementById('toast-loading');
+            if (show) { toast.classList.add('show'); } 
+            else { toast.classList.remove('show'); }
+        }
+
+        // ==========================================
+        // 3. LOGIKA APLIKASI UTAMA (RENDER UI)
+        // ==========================================
         function updateUI() {
             const list = document.getElementById('transaction-list');
             list.innerHTML = '';
             let totalIncome = 0, totalExpense = 0, totalDebt = 0;
 
-            if (transactions.length === 0) list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
+            if (transactions.length === 0) {
+                list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
+            }
 
             const reversedTransactions = [...transactions].reverse();
             const hutangList = reversedTransactions.filter(trx => trx.type === 'hutang');
@@ -325,89 +348,69 @@
             document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
         }
 
-        // FUNGSI MENAMPILKAN / MENYEMBUNYIKAN LOADING TOAST
-        function showLoading(show) {
-            const toast = document.getElementById('toast-loading');
-            const btnRefresh = document.getElementById('btn-refresh');
-            if (show) {
-                toast.classList.add('show');
-                btnRefresh.classList.add('spin');
-            } else {
-                toast.classList.remove('show');
-                btnRefresh.classList.remove('spin');
-            }
-        }
-
-        // FUNGSI REFRESH MANUAL OLEH USER
-        async function manualRefresh() {
-            showLoading(true);
-            await fetchData();
-            showLoading(false);
-        }
-
-        // FUNGSI AMBIL DATA BACKGROUND
-        async function fetchData() {
-            const localData = localStorage.getItem("dompetku_data");
-            if (localData) { transactions = JSON.parse(localData); updateUI(); }
-
-            try {
-                const response = await fetch(SCRIPT_URL);
-                const serverData = await response.json();
-                
-                if (Array.isArray(serverData) && JSON.stringify(transactions) !== JSON.stringify(serverData)) {
-                    transactions = serverData;
-                    localStorage.setItem("dompetku_data", JSON.stringify(transactions));
-                    updateUI();
+        // ==========================================
+        // 4. FIREBASE REALTIME LISTENER (PENGGANTI FETCH SPREADSHEET)
+        // ==========================================
+        // Fitur ini otomatis memperbarui UI setiap ada perubahan di database, sangat cepat!
+        showLoading(true);
+        transactionsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            transactions = [];
+            
+            if (data) {
+                // Firebase menyimpan data dalam bentuk objek unik, kita ubah kembali jadi array
+                for (let key in data) {
+                    transactions.push(data[key]);
                 }
-            } catch (error) { 
-                console.error('Fetch data eror:', error); 
-                alert("Gagal menyinkronkan data. Pastikan koneksi internet aktif.");
             }
-        }
+            
+            // Simpan backup lokal untuk offline mode
+            localStorage.setItem("dompetku_data", JSON.stringify(transactions));
+            updateUI();
+            showLoading(false);
+        });
 
-        // FUNGSI SIMPAN FORM
-        document.getElementById('transaction-form').addEventListener('submit', async function(e) {
+        // ==========================================
+        // 5. TAMBAH KE FIREBASE
+        // ==========================================
+        document.getElementById('transaction-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            showLoading(true); // Tampilkan indikator saat menyimpan
-            
+            showLoading(true);
             const rawAmount = document.getElementById('amount').value.replace(/\./g, '');
+            const newId = String(new Date().getTime());
+            
             const newTrx = {
-                action: 'insert',
-                id: String(new Date().getTime()), 
+                id: newId, 
                 type: document.getElementById('type').value, 
                 desc: document.getElementById('desc').value,
                 amount: rawAmount, 
                 date: document.getElementById('date').value
             };
 
-            transactions.push(newTrx);
-            localStorage.setItem("dompetku_data", JSON.stringify(transactions));
-            updateUI();
-            
+            // Reset form UI
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
-
             document.getElementById('type').value = 'pemasukan';
             document.getElementById('select-text').innerText = '📈 Pemasukan';
             const semuaOpsi = document.querySelectorAll('.sheet-option');
             semuaOpsi.forEach(opt => opt.classList.remove('selected'));
             document.querySelector('.opt-pemasukan').classList.add('selected');
 
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(newTrx)
+            // Set ke Firebase secara real-time
+            transactionsRef.child(newId).set(newTrx)
+                .then(() => {
+                    console.log("Transaksi berhasil disimpan!");
+                })
+                .catch((error) => {
+                    console.error("Error menambah transaksi: ", error);
+                    alert("Gagal menyimpan transaksi ke Firebase.");
                 });
-            } catch (error) {
-                console.error('Gagal simpan:', error);
-            } finally {
-                showLoading(false); // Sembunyikan indikator setelah selesai
-            }
         });
 
+        // ==========================================
+        // 6. HAPUS DARI FIREBASE
+        // ==========================================
         function bukaModalHapus(id) {
             idYangAkanDihapus = String(id);
             const modal = document.getElementById('modalHapus');
@@ -422,35 +425,27 @@
             idYangAkanDihapus = null;
         }
 
-        // FUNGSI HAPUS
-        document.getElementById('btn-konfirm-hapus').addEventListener('click', async function() {
+        document.getElementById('btn-konfirm-hapus').addEventListener('click', function() {
             if (!idYangAkanDihapus) return;
 
             const targetId = String(idYangAkanDihapus);
-
-            transactions = transactions.filter(trx => String(trx.id) !== targetId);
-            localStorage.setItem("dompetku_data", JSON.stringify(transactions));
-            updateUI();
             tutupModalHapus();
+            showLoading(true);
 
-            showLoading(true); // Tampilkan indikator saat menghapus di background
-
-            try {
-                await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    redirect: 'follow',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'delete', id: targetId })
+            // Hapus spesifik anak (child) dari database
+            transactionsRef.child(targetId).remove()
+                .then(() => {
+                    console.log("Transaksi berhasil dihapus!");
+                })
+                .catch((error) => {
+                    console.error("Error menghapus transaksi: ", error);
+                    alert("Gagal menghapus dari Firebase.");
                 });
-            } catch(error) {
-                console.error('Gagal hapus dari cloud:', error);
-            } finally {
-                showLoading(false); // Sembunyikan indikator
-            }
         });
 
-        // Panggil fetch data saat aplikasi pertama kali dibuka (diam-diam tanpa loading besar)
-        fetchData();
+        // Coba muat dari local storage dulu jika internet lambat
+        const localData = localStorage.getItem("dompetku_data");
+        if (localData) { transactions = JSON.parse(localData); updateUI(); }
     </script>
 </body>
 </html>
