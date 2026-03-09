@@ -1,0 +1,52 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Siapkan Project & Instal Capacitor
+      run: |
+        mkdir -p www
+        rsync -av --exclude='www' --exclude='.git' --exclude='.github' . www/
+        npm init -y
+        npm install @capacitor/core @capacitor/android
+        npm install -D @capacitor/cli
+        npx cap init "DompetKu" "com.syarif.dompetku" --web-dir www
+
+    - name: Ubah Web Jadi Android
+      run: |
+        npx cap add android
+        npx cap sync
+
+    - name: Rakit File APK (Build)
+      run: |
+        cd android
+        chmod +x gradlew
+        ./gradlew assembleDebug
+
+    - name: Serahkan APK ke Pengguna
+      uses: actions/upload-artifact@v4
+      with:
+        name: DompetKu-App
+        path: android/app/build/outputs/apk/debug/app-debug.apk
+        
