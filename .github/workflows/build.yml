@@ -26,11 +26,18 @@ jobs:
 
     - name: Siapkan Project & Instal Capacitor
       run: |
+        # Buat folder www dan pindahkan file web ke dalamnya
         mkdir -p www
         rsync -av --exclude='www' --exclude='.git' --exclude='.github' . www/
-        npm init -y
-        npm install @capacitor/core @capacitor/android
-        npm install -D @capacitor/cli
+        
+        # Buat package.json manual agar terhindar dari error nama kapital
+        echo '{"name":"dompetku-app","version":"1.0.0"}' > package.json
+        
+        # Kunci versi Capacitor di v6 agar stabil
+        npm install @capacitor/core@6 @capacitor/android@6
+        npm install -D @capacitor/cli@6
+        
+        # Inisialisasi
         npx cap init "DompetKu" "com.syarif.dompetku" --web-dir www
 
     - name: Ubah Web Jadi Android
