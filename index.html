@@ -25,8 +25,31 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
         
-        /* Header */
-        .header { background: var(--primary); color: white; padding: 20px 20px 60px 20px; text-align: center; font-size: 20px; font-weight: bold; border-radius: 0 0 20px 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        /* Header & Tombol Refresh */
+        .header { 
+            background: var(--primary); color: white; padding: 20px 20px 60px 20px; 
+            text-align: center; font-size: 20px; font-weight: bold; border-radius: 0 0 20px 20px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: relative;
+        }
+        
+        .btn-refresh {
+            position: absolute; right: 20px; top: 20px; background: none; border: none; 
+            color: white; font-size: 20px; cursor: pointer; transition: transform 0.2s;
+        }
+        .btn-refresh:active { transform: scale(0.8); }
+        .spin { animation: spinAnim 1s linear infinite; }
+        @keyframes spinAnim { 100% { transform: rotate(360deg); } }
+
+        /* Toast Loading Indicator */
+        .toast-loading {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-50px);
+            background: rgba(31, 41, 55, 0.9); color: white; padding: 10px 20px; 
+            border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 9999;
+            opacity: 0; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 8px; pointer-events: none;
+        }
+        .toast-loading.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
         .container { max-width: 600px; margin: auto; padding: 0 15px; }
 
         /* Kartu Saldo Utama */
@@ -78,13 +101,7 @@
         .custom-select-trigger:active { background: #e0e7ff; transform: scale(0.98); }
         .custom-select-arrow { font-size: 12px; color: var(--text-muted); }
 
-        /* Kustomisasi Tampilan Flatpickr (Kalender) */
-        .flatpickr-calendar {
-            border-radius: 16px !important;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
-            border: none !important;
-            font-family: 'Inter', sans-serif !important;
-        }
+        .flatpickr-calendar { border-radius: 16px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important; border: none !important; font-family: 'Inter', sans-serif !important; }
 
         .btn-submit { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: bold; transition: all 0.2s; margin-top: 5px; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); }
         .btn-submit:active { transform: scale(0.97); box-shadow: 0 0px 0px rgba(79, 70, 229, 0); }
@@ -93,12 +110,7 @@
         .list-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; }
         .transaction-list { display: flex; flex-direction: column; gap: 12px; }
         
-        .trx-item { 
-            background: var(--bg-card); padding: 15px; border-radius: 12px; display: flex; 
-            justify-content: space-between; align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03); border-left: 4px solid transparent; 
-            transition: all 0.2s ease; cursor: pointer; 
-        }
+        .trx-item { background: var(--bg-card); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border-left: 4px solid transparent; transition: all 0.2s ease; cursor: pointer; }
         .trx-item:active { transform: scale(0.96); background-color: #f8fafc; box-shadow: 0 0px 1px rgba(0,0,0,0.05); }
         
         .trx-item.is-pemasukan { border-left-color: var(--income); }
@@ -117,47 +129,25 @@
         .empty-state { text-align: center; color: var(--text-muted); font-size: 14px; padding: 20px 0; }
 
         /* --- UI POP-UP TENGAH UNTUK MENU JENIS TRANSAKSI --- */
-        .bottom-sheet-overlay { 
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); 
-            z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s ease; 
-            display: flex; align-items: center; justify-content: center;
-        }
+        .bottom-sheet-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s ease; display: flex; align-items: center; justify-content: center; }
         .bottom-sheet-overlay.show { opacity: 1; visibility: visible; }
         
-        .bottom-sheet { 
-            background: white; width: 85%; max-width: 350px; 
-            border-radius: 20px; padding: 25px 20px; transform: scale(0.9); 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
+        .bottom-sheet { background: white; width: 85%; max-width: 350px; border-radius: 20px; padding: 25px 20px; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .bottom-sheet-overlay.show .bottom-sheet { transform: scale(1); }
         
         .sheet-header { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: center; color: var(--text-main); }
-        .sheet-option { 
-            padding: 16px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; font-weight: 600; 
-            display: flex; align-items: center; gap: 10px; background: #f9fafb; transition: 0.2s; cursor: pointer; border: 1px solid transparent;
-        }
+        .sheet-option { padding: 16px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; background: #f9fafb; transition: 0.2s; cursor: pointer; border: 1px solid transparent; }
         .sheet-option:active { transform: scale(0.98); background: #e2e8f0; }
         
-        /* Pewarnaan Khusus di Menu Pop-up */
         .sheet-option.opt-pemasukan { color: var(--income); }
         .sheet-option.opt-pengeluaran { color: var(--expense); }
         .sheet-option.opt-hutang { color: var(--debt); }
         .sheet-option.selected { border-color: var(--primary); background: #eff6ff; }
 
         /* --- UI MODAL POP-UP HAPUS --- */
-        .modal-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); 
-            display: none; justify-content: center; align-items: center; 
-            z-index: 1001; opacity: 0; transition: opacity 0.2s ease-in-out; 
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 1001; opacity: 0; transition: opacity 0.2s ease-in-out; }
         .modal-overlay.show { opacity: 1; }
-        .modal-content { 
-            background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 25px 20px; text-align: center; 
-            transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-        }
+        .modal-content { background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 25px 20px; text-align: center; transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-overlay.show .modal-content { transform: scale(1); }
         
         .modal-icon { font-size: 40px; margin-bottom: 15px; }
@@ -173,7 +163,14 @@
 </head>
 <body>
 
-    <div class="header">DompetKu</div>
+    <div class="header">
+        DompetKu
+        <button id="btn-refresh" class="btn-refresh" onclick="manualRefresh()" aria-label="Refresh Data">🔄</button>
+    </div>
+
+    <div id="toast-loading" class="toast-loading">
+        <span class="spin">⏳</span> Menyinkronkan Data...
+    </div>
 
     <div class="container">
         <div class="saldo-card">
@@ -328,6 +325,27 @@
             document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
         }
 
+        // FUNGSI MENAMPILKAN / MENYEMBUNYIKAN LOADING TOAST
+        function showLoading(show) {
+            const toast = document.getElementById('toast-loading');
+            const btnRefresh = document.getElementById('btn-refresh');
+            if (show) {
+                toast.classList.add('show');
+                btnRefresh.classList.add('spin');
+            } else {
+                toast.classList.remove('show');
+                btnRefresh.classList.remove('spin');
+            }
+        }
+
+        // FUNGSI REFRESH MANUAL OLEH USER
+        async function manualRefresh() {
+            showLoading(true);
+            await fetchData();
+            showLoading(false);
+        }
+
+        // FUNGSI AMBIL DATA BACKGROUND
         async function fetchData() {
             const localData = localStorage.getItem("dompetku_data");
             if (localData) { transactions = JSON.parse(localData); updateUI(); }
@@ -335,17 +353,24 @@
             try {
                 const response = await fetch(SCRIPT_URL);
                 const serverData = await response.json();
-                       // Pastikan data yang masuk berupa array yang sah
+                
                 if (Array.isArray(serverData) && JSON.stringify(transactions) !== JSON.stringify(serverData)) {
                     transactions = serverData;
                     localStorage.setItem("dompetku_data", JSON.stringify(transactions));
                     updateUI();
                 }
-            } catch (error) { console.error('Fetch data eror:', error); }
+            } catch (error) { 
+                console.error('Fetch data eror:', error); 
+                alert("Gagal menyinkronkan data. Pastikan koneksi internet aktif.");
+            }
         }
 
-        document.getElementById('transaction-form').addEventListener('submit', function(e) {
+        // FUNGSI SIMPAN FORM
+        document.getElementById('transaction-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            showLoading(true); // Tampilkan indikator saat menyimpan
+            
             const rawAmount = document.getElementById('amount').value.replace(/\./g, '');
             const newTrx = {
                 action: 'insert',
@@ -363,12 +388,24 @@
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
 
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(newTrx)
-            }).catch(error => console.error('Gagal simpan:', error));
+            document.getElementById('type').value = 'pemasukan';
+            document.getElementById('select-text').innerText = '📈 Pemasukan';
+            const semuaOpsi = document.querySelectorAll('.sheet-option');
+            semuaOpsi.forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('.opt-pemasukan').classList.add('selected');
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(newTrx)
+                });
+            } catch (error) {
+                console.error('Gagal simpan:', error);
+            } finally {
+                showLoading(false); // Sembunyikan indikator setelah selesai
+            }
         });
 
         function bukaModalHapus(id) {
@@ -385,28 +422,34 @@
             idYangAkanDihapus = null;
         }
 
-        document.getElementById('btn-konfirm-hapus').addEventListener('click', function() {
+        // FUNGSI HAPUS
+        document.getElementById('btn-konfirm-hapus').addEventListener('click', async function() {
             if (!idYangAkanDihapus) return;
 
             const targetId = String(idYangAkanDihapus);
 
-            // 1. Langsung hapus di UI dan Local Storage
             transactions = transactions.filter(trx => String(trx.id) !== targetId);
             localStorage.setItem("dompetku_data", JSON.stringify(transactions));
             updateUI();
             tutupModalHapus();
 
-            // 2. Kirim perintah hapus ke Apps Script
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                redirect: 'follow', // Memastikan Google memproses URL redirect-nya
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'delete', id: targetId })
-            }).then(response => {
-                console.log('Permintaan hapus terkirim.');
-            }).catch(error => console.error('Gagal hapus dari cloud:', error));
+            showLoading(true); // Tampilkan indikator saat menghapus di background
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'delete', id: targetId })
+                });
+            } catch(error) {
+                console.error('Gagal hapus dari cloud:', error);
+            } finally {
+                showLoading(false); // Sembunyikan indikator
+            }
         });
 
+        // Panggil fetch data saat aplikasi pertama kali dibuka (diam-diam tanpa loading besar)
         fetchData();
     </script>
 </body>
