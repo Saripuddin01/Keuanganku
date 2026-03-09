@@ -301,8 +301,8 @@ const firebaseConfig = {
             else { toast.classList.remove('show'); }
         }
 
-        // ==========================================
-        // 3. LOGIKA APLIKASI UTAMA (RENDER UI)
+             // ==========================================
+        // 3. LOGIKA APLIKASI UTAMA (RENDER UI) - UPDATED
         // ==========================================
         function updateUI() {
             const list = document.getElementById('transaction-list');
@@ -314,23 +314,38 @@ const firebaseConfig = {
             }
 
             const reversedTransactions = [...transactions].reverse();
+            // Urutan: Hutang tetap di atas agar mudah dipantau
             const hutangList = reversedTransactions.filter(trx => trx.type === 'hutang');
             const nonHutangList = reversedTransactions.filter(trx => trx.type !== 'hutang');
             const sortedTransactions = [...hutangList, ...nonHutangList];
 
             sortedTransactions.forEach((trx) => {
                 let amount = parseFloat(trx.amount);
-                let colorClass = ''; let symbol = '';
+                let colorClass = ''; 
+                let symbol = '';
 
-                if (trx.type === 'pemasukan') { totalIncome += amount; colorClass = 'text-income'; symbol = '+ '; } 
-                else if (trx.type === 'pengeluaran') { totalExpense += amount; colorClass = 'text-expense'; symbol = '- '; } 
-                else if (trx.type === 'hutang') { totalDebt += amount; colorClass = 'text-debt'; symbol = '- '; }
+                if (trx.type === 'pemasukan') { 
+                    totalIncome += amount; 
+                    colorClass = 'text-income'; 
+                    symbol = '+ '; 
+                } 
+                else if (trx.type === 'pengeluaran') { 
+                    totalExpense += amount; 
+                    colorClass = 'text-expense'; 
+                    symbol = '- '; 
+                } 
+                else if (trx.type === 'hutang') { 
+                    // Logika Baru: Hutang ke saya dianggap penambah kekayaan/aset
+                    totalDebt += amount; 
+                    colorClass = 'text-income'; // Menggunakan warna income karena sifatnya positif
+                    symbol = '+ '; 
+                }
 
                 const card = document.createElement('div');
                 card.className = `trx-item is-${trx.type}`;
                 card.innerHTML = `
                     <div class="trx-info">
-                        <span class="trx-desc">${trx.desc}</span>
+                        <span class="trx-desc">${trx.desc} ${trx.type === 'hutang' ? '<small>(Piutang)</small>' : ''}</span>
                         <span class="trx-date">${formatTanggal(trx.date)}</span>
                     </div>
                     <div class="trx-right">
@@ -341,8 +356,14 @@ const firebaseConfig = {
                 list.appendChild(card);
             });
 
-            document.getElementById('saldo-sekarang').innerText = formatRupiah(totalIncome - totalExpense - totalDebt);
-            document.getElementById('total-saldo-kotor').innerText = formatRupiah(totalIncome - totalExpense);
+            // LOGIKA KALKULASI BARU
+            // Saldo Sekarang = (Uang Masuk + Piutang) - Uang Keluar
+            const saldoSekarang = (totalIncome + totalDebt) - totalExpense;
+            // Saldo Kotor = Uang yang benar-benar ada di tangan saat ini
+            const saldoKotor = totalIncome - totalExpense;
+
+            document.getElementById('saldo-sekarang').innerText = formatRupiah(saldoSekarang);
+            document.getElementById('total-saldo-kotor').innerText = formatRupiah(saldoKotor);
             document.getElementById('total-income').innerText = formatRupiah(totalIncome);
             document.getElementById('total-expense').innerText = formatRupiah(totalExpense);
             document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
