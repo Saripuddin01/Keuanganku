@@ -121,15 +121,13 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
             background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); 
             z-index: 1000; opacity: 0; visibility: hidden; transition: 0.3s ease; 
-            display: flex; align-items: center; 
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
         .bottom-sheet-overlay.show { opacity: 1; visibility: visible; }
         
         .bottom-sheet { 
             background: white; width: 85%; max-width: 350px; 
-            border-radius: 20px; padding: 25px 20px; 
-            transform: scale(0.9); 
+            border-radius: 20px; padding: 25px 20px; transform: scale(0.9); 
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
@@ -137,9 +135,8 @@
         
         .sheet-header { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: center; color: var(--text-main); }
         .sheet-option { 
-            padding: 16px; border-radius: 12px; margin-bottom: 10px; 
-            font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px;
-            background: #f9fafb; transition: 0.2s; cursor: pointer; border: 1px solid transparent;
+            padding: 16px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; font-weight: 600; 
+            display: flex; align-items: center; gap: 10px; background: #f9fafb; transition: 0.2s; cursor: pointer; border: 1px solid transparent;
         }
         .sheet-option:active { transform: scale(0.98); background: #e2e8f0; }
         
@@ -147,7 +144,6 @@
         .sheet-option.opt-pemasukan { color: var(--income); }
         .sheet-option.opt-pengeluaran { color: var(--expense); }
         .sheet-option.opt-hutang { color: var(--debt); }
-        
         .sheet-option.selected { border-color: var(--primary); background: #eff6ff; }
 
         /* --- UI MODAL POP-UP HAPUS --- */
@@ -159,10 +155,8 @@
         }
         .modal-overlay.show { opacity: 1; }
         .modal-content { 
-            background: white; width: 85%; max-width: 320px; 
-            border-radius: 20px; padding: 25px 20px; text-align: center; 
-            transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 25px 20px; text-align: center; 
+            transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
         }
         .modal-overlay.show .modal-content { transform: scale(1); }
         
@@ -179,33 +173,19 @@
 </head>
 <body>
 
-    <div class="header">
-        DompetKu
-    </div>
+    <div class="header">DompetKu</div>
 
     <div class="container">
         <div class="saldo-card">
             <h3>Saldo Sekarang</h3>
             <p id="saldo-sekarang">Rp 0</p>
-            
-            <div class="saldo-sub">
-                Total Saldo: <span id="total-saldo-kotor">Rp 0</span>
-            </div>
+            <div class="saldo-sub">Total Saldo: <span id="total-saldo-kotor">Rp 0</span></div>
         </div>
 
         <div class="summary-grid">
-            <div class="summary-item">
-                <h4>Pemasukan</h4>
-                <p class="text-income" id="total-income">Rp 0</p>
-            </div>
-            <div class="summary-item">
-                <h4>Pengeluaran</h4>
-                <p class="text-expense" id="total-expense">Rp 0</p>
-            </div>
-            <div class="summary-item">
-                <h4>Hutang</h4>
-                <p class="text-debt" id="total-debt">Rp 0</p>
-            </div>
+            <div class="summary-item"><h4>Pemasukan</h4><p class="text-income" id="total-income">Rp 0</p></div>
+            <div class="summary-item"><h4>Pengeluaran</h4><p class="text-expense" id="total-expense">Rp 0</p></div>
+            <div class="summary-item"><h4>Hutang</h4><p class="text-debt" id="total-debt">Rp 0</p></div>
         </div>
 
         <div class="form-section">
@@ -240,14 +220,12 @@
         </div>
 
         <h3 class="list-header">Riwayat Terakhir</h3>
-        <div class="transaction-list" id="transaction-list">
-        </div>
+        <div class="transaction-list" id="transaction-list"></div>
     </div>
 
     <div class="bottom-sheet-overlay" id="sheetJenis" onclick="tutupSheetJenis(event)">
         <div class="bottom-sheet" onclick="event.stopPropagation()">
             <div class="sheet-header">Pilih Jenis Transaksi</div>
-            
             <div class="sheet-option opt-pemasukan selected" onclick="pilihJenis('pemasukan', '📈 Pemasukan', this)">📈 Pemasukan</div>
             <div class="sheet-option opt-pengeluaran" onclick="pilihJenis('pengeluaran', '📉 Pengeluaran', this)">📉 Pengeluaran</div>
             <div class="sheet-option opt-hutang" onclick="pilihJenis('hutang', '⚠️ Hutang', this)">⚠️ Hutang</div>
@@ -270,12 +248,11 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
 
     <script>
-        // URL Web App Google Apps Script Anda
+        // PASTIKAN URL WEB APP GOOGLE APPS SCRIPT KAMU BENAR
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-o4-qhZxnani5ZJ7PiczF0lN1iIoMgBzj2_ZQuV1okD_s1ACrqvgNT1Xwdi6HGtZ7/exec';
         let transactions = [];
         let idYangAkanDihapus = null;
 
-        // --- INISIALISASI KALENDER FLATPICKR ---
         flatpickr("#date", {
             locale: "id",          
             dateFormat: "Y-m-d",   
@@ -285,76 +262,49 @@
             altFormat: "d M Y",    
         });
         
-        // --- LOGIKA POP-UP TENGAH JENIS TRANSAKSI ---
-        function bukaSheetJenis() {
-            document.getElementById('sheetJenis').classList.add('show');
-        }
-
-        function tutupSheetJenis(event) {
-            document.getElementById('sheetJenis').classList.remove('show');
-        }
+        function bukaSheetJenis() { document.getElementById('sheetJenis').classList.add('show'); }
+        function tutupSheetJenis(event) { document.getElementById('sheetJenis').classList.remove('show'); }
 
         function pilihJenis(nilai, teks, elemenAktif) {
-            // Ubah nilai input tersembunyi & Teks UI
             document.getElementById('type').value = nilai;
             document.getElementById('select-text').innerText = teks;
-            
-            // Ubah indikator kotak terpilih (warna biru)
             const semuaOpsi = document.querySelectorAll('.sheet-option');
             semuaOpsi.forEach(opt => opt.classList.remove('selected'));
             elemenAktif.classList.add('selected');
-            
             tutupSheetJenis();
         }
 
-        // --- FORMAT ANGKA OTOMATIS ---
         document.getElementById('amount').addEventListener('input', function(e) {
             let value = this.value.replace(/[^0-9]/g, '');
-            if(value !== '') {
-                this.value = parseInt(value, 10).toLocaleString('id-ID');
-            } else {
-                this.value = '';
-            }
+            if(value !== '') { this.value = parseInt(value, 10).toLocaleString('id-ID'); } 
+            else { this.value = ''; }
         });
 
-        const formatRupiah = (number) => {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
-        };
-
+        const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         const formatTanggal = (stringTanggal) => {
             const dateObj = new Date(stringTanggal);
-            if (isNaN(dateObj)) return stringTanggal; 
-            return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            return isNaN(dateObj) ? stringTanggal : dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
         };
 
-        // --- FUNGSI TAMPILKAN UI ---
         function updateUI() {
             const list = document.getElementById('transaction-list');
             list.innerHTML = '';
             let totalIncome = 0, totalExpense = 0, totalDebt = 0;
 
-            if (transactions.length === 0) {
-                list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
-            }
+            if (transactions.length === 0) list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
 
             const reversedTransactions = [...transactions].reverse();
-
             const hutangList = reversedTransactions.filter(trx => trx.type === 'hutang');
             const nonHutangList = reversedTransactions.filter(trx => trx.type !== 'hutang');
             const sortedTransactions = [...hutangList, ...nonHutangList];
 
             sortedTransactions.forEach((trx) => {
                 let amount = parseFloat(trx.amount);
-                let colorClass = '';
-                let symbol = '';
+                let colorClass = ''; let symbol = '';
 
-                if (trx.type === 'pemasukan') {
-                    totalIncome += amount; colorClass = 'text-income'; symbol = '+ ';
-                } else if (trx.type === 'pengeluaran') {
-                    totalExpense += amount; colorClass = 'text-expense'; symbol = '- ';
-                } else if (trx.type === 'hutang') {
-                    totalDebt += amount; colorClass = 'text-debt'; symbol = '- '; 
-                }
+                if (trx.type === 'pemasukan') { totalIncome += amount; colorClass = 'text-income'; symbol = '+ '; } 
+                else if (trx.type === 'pengeluaran') { totalExpense += amount; colorClass = 'text-expense'; symbol = '- '; } 
+                else if (trx.type === 'hutang') { totalDebt += amount; colorClass = 'text-debt'; symbol = '- '; }
 
                 const card = document.createElement('div');
                 card.className = `trx-item is-${trx.type}`;
@@ -371,45 +321,35 @@
                 list.appendChild(card);
             });
 
-            let saldoKotor = totalIncome - totalExpense; 
-            let saldoBersih = totalIncome - totalExpense - totalDebt; 
-
-            document.getElementById('saldo-sekarang').innerText = formatRupiah(saldoBersih);
-            document.getElementById('total-saldo-kotor').innerText = formatRupiah(saldoKotor);
+            document.getElementById('saldo-sekarang').innerText = formatRupiah(totalIncome - totalExpense - totalDebt);
+            document.getElementById('total-saldo-kotor').innerText = formatRupiah(totalIncome - totalExpense);
             document.getElementById('total-income').innerText = formatRupiah(totalIncome);
             document.getElementById('total-expense').innerText = formatRupiah(totalExpense);
             document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
         }
 
-          // --- FUNGSI AMBIL DATA BACKGROUND ---
         async function fetchData() {
             const localData = localStorage.getItem("dompetku_data");
-            if (localData) {
-                transactions = JSON.parse(localData);
-                updateUI();
-            }
+            if (localData) { transactions = JSON.parse(localData); updateUI(); }
 
             try {
                 const response = await fetch(SCRIPT_URL);
                 const serverData = await response.json();
-                
-                if (JSON.stringify(transactions) !== JSON.stringify(serverData)) {
+                       // Pastikan data yang masuk berupa array yang sah
+                if (Array.isArray(serverData) && JSON.stringify(transactions) !== JSON.stringify(serverData)) {
                     transactions = serverData;
                     localStorage.setItem("dompetku_data", JSON.stringify(transactions));
                     updateUI();
                 }
-            } catch (error) {}
+            } catch (error) { console.error('Fetch data eror:', error); }
         }
 
-        // --- FUNGSI SIMPAN FORM ---
         document.getElementById('transaction-form').addEventListener('submit', function(e) {
             e.preventDefault();
-
             const rawAmount = document.getElementById('amount').value.replace(/\./g, '');
-
             const newTrx = {
                 action: 'insert',
-                id: new Date().getTime().toString(), 
+                id: String(new Date().getTime()), 
                 type: document.getElementById('type').value, 
                 desc: document.getElementById('desc').value,
                 amount: rawAmount, 
@@ -420,27 +360,19 @@
             localStorage.setItem("dompetku_data", JSON.stringify(transactions));
             updateUI();
             
-            // Mengosongkan form tulisan saja
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
 
-            // Kembalikan Pop-up ke settingan bawaan (PEMASUKAN)
-            document.getElementById('type').value = 'pemasukan';
-            document.getElementById('select-text').innerText = '📈 Pemasukan';
-            const semuaOpsi = document.querySelectorAll('.sheet-option');
-            semuaOpsi.forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('.opt-pemasukan').classList.add('selected');
-
             fetch(SCRIPT_URL, {
                 method: 'POST',
+                redirect: 'follow',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(newTrx)
-            }).catch(error => console.error('Gagal simpan ke cloud:', error));
+            }).catch(error => console.error('Gagal simpan:', error));
         });
 
-        // --- SISTEM POP-UP HAPUS ---
         function bukaModalHapus(id) {
-            idYangAkanDihapus = id;
+            idYangAkanDihapus = String(id);
             const modal = document.getElementById('modalHapus');
             modal.style.display = 'flex';
             setTimeout(() => { modal.classList.add('show'); }, 10);
@@ -456,21 +388,26 @@
         document.getElementById('btn-konfirm-hapus').addEventListener('click', function() {
             if (!idYangAkanDihapus) return;
 
-            transactions = transactions.filter(trx => trx.id !== idYangAkanDihapus);
+            const targetId = String(idYangAkanDihapus);
+
+            // 1. Langsung hapus di UI dan Local Storage
+            transactions = transactions.filter(trx => String(trx.id) !== targetId);
             localStorage.setItem("dompetku_data", JSON.stringify(transactions));
             updateUI();
-
             tutupModalHapus();
 
+            // 2. Kirim perintah hapus ke Apps Script
             fetch(SCRIPT_URL, {
                 method: 'POST',
+                redirect: 'follow', // Memastikan Google memproses URL redirect-nya
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'delete', id: idYangAkanDihapus })
+                body: JSON.stringify({ action: 'delete', id: targetId })
+            }).then(response => {
+                console.log('Permintaan hapus terkirim.');
             }).catch(error => console.error('Gagal hapus dari cloud:', error));
         });
 
         fetchData();
     </script>
-
 </body>
 </html>
