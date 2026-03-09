@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DompetKu - Catatan Keuangan</title>
+    <style>
+        /* --- TEMA MODERN APP (Sesuai Screenshot Favoritmu) --- */
+        :root {
+            --primary: #4f46e5;      /* Indigo/Biru Modern */
+            --income: #10b981;       /* Hijau Terang */
+            --expense: #ef4444;      /* Merah Terang */
+            --debt: #f59e0b;         /* Kuning/Orange */
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
+        
+        /* Header */
+        .header { background: var(--primary); color: white; padding: 20px 20px 60px 20px; text-align: center; font-size: 20px; font-weight: bold; border-radius: 0 0 20px 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .container { max-width: 600px; margin: auto; padding: 0 15px; }
+
+        /* Kartu Saldo Utama */
+        .saldo-card { background: linear-gradient(500deg, #1e3a8a 100%); color: white; padding: 25px 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); margin-top: -40px; position: relative; z-index: 10; margin-bottom: 20px; }
+        .saldo-card h3 { font-size: 14px; font-weight: normal; opacity: 0.9; margin-bottom: 5px; }
+        .saldo-card p { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; }
+
+        /* Grid Ringkasan (Pemasukan, Pengeluaran, Hutang) */
+        .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .summary-item { background: var(--bg-card); padding: 15px 10px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .summary-item h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .summary-item p { font-size: 13px; font-weight: bold; }
+        .text-income { color: var(--income); }
+        .text-expense { color: var(--expense); }
+        .text-debt { color: var(--debt); }
+
+        /* Form Input */
+        .form-section { background: var(--bg-card); padding: 20px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .form-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        
+        /* Input dipercantik */
+        .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; background: #f9fafb; outline: none; transition: 0.2s; height: 46px; box-sizing: border-box; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); background: white; }
+        
+        .btn-submit { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: bold; transition: 0.2s; margin-top: 5px; }
+        .btn-submit:active { transform: scale(0.98); }
+
+        /* Daftar Transaksi Modern */
+        .list-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; }
+        .transaction-list { display: flex; flex-direction: column; gap: 12px; }
+        .trx-item { background: var(--bg-card); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 4px solid transparent; }
+        
+        /* Garis warna di sebelah kiri kartu */
+        .trx-item.is-pemasukan { border-left-color: var(--income); }
+        .trx-item.is-pengeluaran { border-left-color: var(--expense); }
+        .trx-item.is-hutang { border-left-color: var(--debt); }
+
+        .trx-info { display: flex; flex-direction: column; gap: 4px; }
+        .trx-desc { font-weight: 600; font-size: 14px; color: var(--text-main); text-transform: uppercase; }
+        .trx-date { font-size: 11px; color: var(--text-muted); }
+        
+        .trx-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+        .trx-amount { font-weight: bold; font-size: 14px; }
+        .btn-delete { background: #fee2e2; color: #dc2626; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-delete:active { background: #fca5a5; }
+
+        .empty-state { text-align: center; color: var(--text-muted); font-size: 14px; padding: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        DompetKu
+    </div>
+
+    <div class="container">
+        <div class="saldo-card">
+            <h3>Total Saldo Tersedia</h3>
+            <p id="total-saldo">Rp 0</p>
+        </div>
+
+        <div class="summary-grid">
+            <div class="summary-item">
+                <h4>Pemasukan</h4>
+                <p class="text-income" id="total-income">Rp 0</p>
+            </div>
+            <div class="summary-item">
+                <h4>Pengeluaran</h4>
+                <p class="text-expense" id="total-expense">Rp 0</p>
+            </div>
+            <div class="summary-item">
+                <h4>Hutang</h4>
+                <p class="text-debt" id="total-debt">Rp 0</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-title">📝 Catat Transaksi Baru</div>
+            <form id="transaction-form">
+                <div class="form-group">
+                    <label for="type">Jenis Transaksi</label>
+                    <select id="type" required>
+                        <option value="pengeluaran">📉 Pengeluaran</option>
+                        <option value="pemasukan">📈 Pemasukan</option>
+                        <option value="hutang">⚠️ Hutang</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="desc">Keterangan / Nama Barang</label>
+                    <input type="text" id="desc" placeholder="Contoh: Makan siang, Gaji bulanan..." required autocomplete="off">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="amount">Jumlah (Rp)</label>
+                        <input type="text" id="amount" inputmode="numeric" placeholder="50.000" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="date">Tanggal</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-submit">Simpan Transaksi</button>
+            </form>
+        </div>
+
+        <h3 class="list-header">Riwayat Terakhir</h3>
+        <div class="transaction-list" id="transaction-list">
+            </div>
+    </div>
+
+    <script>
+        // URL Web App Google Apps Script Anda
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-o4-qhZxnani5ZJ7PiczF0lN1iIoMgBzj2_ZQuV1okD_s1ACrqvgNT1Xwdi6HGtZ7/exec';
+        let transactions = [];
+
+        // Set tanggal hari ini sebagai bawaan di form
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Fitur Titik Otomatis saat mengetik angka
+        document.getElementById('amount').addEventListener('input', function(e) {
+            let value = this.value.replace(/[^0-9]/g, '');
+            if(value !== '') {
+                this.value = parseInt(value, 10).toLocaleString('id-ID');
+            } else {
+                this.value = '';
+            }
+        });
+
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        };
+
+        const formatTanggal = (stringTanggal) => {
+            const dateObj = new Date(stringTanggal);
+            if (isNaN(dateObj)) return stringTanggal; 
+            return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+        };
+
+        // FUNGSI UPDATE LAYAR (UI)
+        function updateUI() {
+            const list = document.getElementById('transaction-list');
+            list.innerHTML = '';
+            let totalIncome = 0, totalExpense = 0, totalDebt = 0;
+
+            if (transactions.length === 0) {
+                list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
+            }
+
+            // Urutkan dari yang terbaru
+            const reversedTransactions = [...transactions].reverse();
+
+            reversedTransactions.forEach((trx) => {
+                let amount = parseFloat(trx.amount);
+                let colorClass = '';
+                let symbol = '';
+
+                if (trx.type === 'pemasukan') {
+                    totalIncome += amount;
+                    colorClass = 'text-income';
+                    symbol = '+ ';
+                } else if (trx.type === 'pengeluaran') {
+                    totalExpense += amount;
+                    colorClass = 'text-expense';
+                    symbol = '- ';
+                } else if (trx.type === 'hutang') {
+                    totalDebt += amount;
+                    colorClass = 'text-debt';
+                    symbol = '';
+                }
+
+                // Desain Card List Modern (Sesuai Screenshot)
+                const card = document.createElement('div');
+                card.className = `trx-item is-${trx.type}`;
+                card.innerHTML = `
+                    <div class="trx-info">
+                        <span class="trx-desc">${trx.desc}</span>
+                        <span class="trx-date">${formatTanggal(trx.date)}</span>
+                    </div>
+                    <div class="trx-right">
+                        <span class="trx-amount ${colorClass}">${symbol}${formatRupiah(amount)}</span>
+                        <button class="btn-delete" onclick="deleteTransaction('${trx.id}')">Hapus</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+
+            // Update Angka di Atas
+            document.getElementById('total-saldo').innerText = formatRupiah(totalIncome - totalExpense);
+            document.getElementById('total-income').innerText = formatRupiah(totalIncome);
+            document.getElementById('total-expense').innerText = formatRupiah(totalExpense);
+            document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
+        }
+
+        // FUNGSI PENGAMBILAN DATA (INSTAN 0 DETIK + BACKGROUND SYNC)
+        async function fetchData() {
+            const localData = localStorage.getItem("dompetku_data");
+            if (localData) {
+                transactions = JSON.parse(localData);
+                updateUI();
+            }
+
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const serverData = await response.json();
+                
+                if (JSON.stringify(transactions) !== JSON.stringify(serverData)) {
+                    transactions = serverData;
+                    localStorage.setItem("dompetku_data", JSON.stringify(transactions));
+                    updateUI();
+                }
+            } catch (error) {
+                console.error('Gagal sinkronisasi background:', error);
+            }
+        }
+
+        // FUNGSI TAMBAH TRANSAKSI
+        document.getElementById('transaction-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Hapus titik sebelum disimpan ke database agar terbaca angka murni
+            const rawAmount = document.getElementById('amount').value.replace(/\./g, '');
+
+            const newTrx = {
+                action: 'insert',
+                id: new Date().getTime().toString(), 
+                type: document.getElementById('type').value,
+                desc: document.getElementById('desc').value,
+                amount: rawAmount, 
+                date: document.getElementById('date').value
+            };
+
+            transactions.push(newTrx);
+            localStorage.setItem("dompetku_data", JSON.stringify(transactions));
+            updateUI();
+            
+            // Bersihkan form judul dan nominal saja (tanggal biarkan hari ini)
+            document.getElementById('desc').value = '';
+            document.getElementById('amount').value = '';
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(newTrx)
+            }).catch(error => console.error('Gagal simpan ke cloud:', error));
+        });
+
+        // FUNGSI HAPUS TRANSAKSI
+        function deleteTransaction(id) {
+            if(!confirm("Hapus transaksi ini?")) return;
+
+            transactions = transactions.filter(trx => trx.id !== id);
+            localStorage.setItem("dompetku_data", JSON.stringify(transactions));
+            updateUI();
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'delete', id: id })
+            }).catch(error => console.error('Gagal hapus dari cloud:', error));
+        }
+
+        // Panggil saat halaman pertama kali dibuka
+        fetchData();
+    </script>
+
+</body>
+</html>
