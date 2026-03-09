@@ -301,72 +301,83 @@ const firebaseConfig = {
             else { toast.classList.remove('show'); }
         }
 
-                    // ==========================================
+        // ==========================================
         // 3. LOGIKA APLIKASI UTAMA (RENDER UI)
         // ==========================================
-        function updateUI() {
-            const list = document.getElementById('transaction-list');
-            list.innerHTML = '';
-            let totalIncome = 0, totalExpense = 0, totalDebt = 0;
+    let showingAll = false;
+                function updateUI() {
+    const list = document.getElementById('transaction-list');
+    list.innerHTML = '';
+    
+    // 1. HITUNG SEMUA DATA TERLEBIH DAHULU (Agar nilai saldo tidak berubah)
+    let totalIncome = 0, totalExpense = 0, totalDebt = 0;
+    
+    transactions.forEach(trx => {
+        let amount = parseFloat(trx.amount);
+        if (trx.type === 'pemasukan') totalIncome += amount;
+        else if (trx.type === 'pengeluaran') totalExpense += amount;
+        else if (trx.type === 'hutang') totalDebt += amount;
+    });
 
-            if (transactions.length === 0) {
-                list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
-            }
+    // 2. LOGIKA TAMPILAN (Baru kita potong di sini)
+    if (transactions.length === 0) {
+        list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
+    }
 
-            const reversedTransactions = [...transactions].reverse();
-            const hutangList = reversedTransactions.filter(trx => trx.type === 'hutang');
-            const nonHutangList = reversedTransactions.filter(trx => trx.type !== 'hutang');
-            const sortedTransactions = [...hutangList, ...nonHutangList];
+    const reversedTransactions = [...transactions].reverse();
+    const hutangList = reversedTransactions.filter(trx => trx.type === 'hutang');
+    const nonHutangList = reversedTransactions.filter(trx => trx.type !== 'hutang');
+    const sortedTransactions = [...hutangList, ...nonHutangList];
 
-            sortedTransactions.forEach((trx) => {
-                let amount = parseFloat(trx.amount);
-                let colorClass = ''; 
-                let symbol = '';
+    // Potong hanya untuk tampilan, tidak mempengaruhi variabel total di atas
+    const displayTransactions = showingAll ? sortedTransactions : sortedTransactions.slice(0, 3);
 
-                if (trx.type === 'pemasukan') { 
-                    totalIncome += amount; 
-                    colorClass = 'text-income'; 
-                    symbol = '+ '; 
-                } 
-                else if (trx.type === 'pengeluaran') { 
-                    totalExpense += amount; 
-                    colorClass = 'text-expense'; 
-                    symbol = '- '; 
-                } 
-                else if (trx.type === 'hutang') { 
-                    totalDebt += amount; 
-                    colorClass = 'text-debt'; // Biasanya oranye/kuning untuk pembeda
-                    symbol = '+ '; // Ditampilkan sebagai piutang (uang Anda)
-                }
+    displayTransactions.forEach((trx) => {
+        let amount = parseFloat(trx.amount);
+        let colorClass = ''; 
+        let symbol = '';
 
-                const card = document.createElement('div');
-                card.className = `trx-item is-${trx.type}`;
-                card.innerHTML = `
-                    <div class="trx-info">
-                        <span class="trx-desc">${trx.desc} ${trx.type === 'hutang' ? '<small>(Piutang)</small>' : ''}</span>
-                        <span class="trx-date">${formatTanggal(trx.date)}</span>
-                    </div>
-                    <div class="trx-right">
-                        <span class="trx-amount ${colorClass}">${symbol}${formatRupiah(amount)}</span>
-                        <button class="btn-delete" onclick="bukaModalHapus('${trx.id}')">Hapus</button>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
+        if (trx.type === 'pemasukan') { colorClass = 'text-income'; symbol = '+ '; } 
+        else if (trx.type === 'pengeluaran') { colorClass = 'text-expense'; symbol = '- '; } 
+        else if (trx.type === 'hutang') { colorClass = 'text-debt'; symbol = '+ '; }
 
-            // PENERAPAN RUMUS SESUAI PERMINTAAN:
-            // 1. Saldo Sekarang (Cash di tangan)
-            const saldoSekarang = totalIncome - totalExpense - totalDebt;
-            
-            // 2. Total Saldo (Seluruh Aset termasuk piutang)
-            const totalSaldo = totalIncome - totalExpense ;
+        const card = document.createElement('div');
+        card.className = `trx-item is-${trx.type}`;
+        card.innerHTML = `
+            <div class="trx-info">
+                <span class="trx-desc">${trx.desc} ${trx.type === 'hutang' ? '<small>(Piutang)</small>' : ''}</span>
+                <span class="trx-date">${formatTanggal(trx.date)}</span>
+            </div>
+            <div class="trx-right">
+                <span class="trx-amount ${colorClass}">${symbol}${formatRupiah(amount)}</span>
+                <button class="btn-delete" onclick="bukaModalHapus('${trx.id}')">Hapus</button>
+            </div>
+        `;
+        list.appendChild(card);
+    });
 
-            document.getElementById('saldo-sekarang').innerText = formatRupiah(saldoSekarang);
-            document.getElementById('total-saldo-kotor').innerText = formatRupiah(totalSaldo); // Ini jadi Total Saldo
-            document.getElementById('total-income').innerText = formatRupiah(totalIncome);
-            document.getElementById('total-expense').innerText = formatRupiah(totalExpense);
-            document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
-        }
+    // 3. TOMBOL TAMPILKAN
+    if (transactions.length > 3) {
+        const btnSeeMore = document.createElement('button');
+        btnSeeMore.style.cssText = "width:100%; padding:10px; margin-top:10px; background:none; border:1px dashed #6c5ce7; color:#6c5ce7; border-radius:8px; cursor:pointer; font-weight:bold;";
+        btnSeeMore.innerText = showingAll ? "Tampilkan Sedikit" : `Lihat Semua (${transactions.length})`;
+        btnSeeMore.onclick = () => {
+            showingAll = !showingAll;
+            updateUI(); // Panggil ulang fungsi ini
+        };
+        list.appendChild(btnSeeMore);
+    }
+
+    // 4. UPDATE UI SALDO (Menggunakan hasil hitung poin nomor 1)
+    const saldoSekarang = totalIncome - totalExpense - totalDebt;
+    const totalSaldo = totalIncome - totalExpense;
+
+    document.getElementById('saldo-sekarang').innerText = formatRupiah(saldoSekarang);
+    document.getElementById('total-saldo-kotor').innerText = formatRupiah(totalSaldo); 
+    document.getElementById('total-income').innerText = formatRupiah(totalIncome);
+    document.getElementById('total-expense').innerText = formatRupiah(totalExpense);
+    document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
+}
 
 
         // ==========================================
