@@ -361,8 +361,18 @@
                 list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
             }
 
-            const reversedTransactions = [...transactions].reverse();
-            const displayTransactions = showingAll ? reversedTransactions : reversedTransactions.slice(0, 3);
+            // 1. Balikkan urutan agar yang tanggal terbaru tetap di atas
+const baseList = [...transactions].reverse();
+
+// 2. Pisahkan transaksi menjadi dua kelompok
+const listHutang = baseList.filter(trx => trx.type === 'hutang');
+const listLainnya = baseList.filter(trx => trx.type !== 'hutang');
+
+// 3. Gabungkan: Kelompok Hutang ditaruh di paling depan (paling atas)
+const sortedTransactions = [...listHutang, ...listLainnya];
+
+// 4. Gunakan 'sortedTransactions' untuk ditampilkan di layar
+const displayTransactions = showingAll ? sortedTransactions : sortedTransactions.slice(0, 3);
 
             displayTransactions.forEach((trx) => {
                 let amount = parseFloat(trx.amount);
