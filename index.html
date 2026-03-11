@@ -2,11 +2,9 @@
 <html lang="id">
 <head>
     <link rel="manifest" href="manifest.json">
-
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DompetKu - Catatan Keuangan</title>
@@ -34,16 +32,18 @@
         /* Header & Indikator Firebase */
         .header { 
             background: var(--primary); color: white; padding: 20px 20px 60px 20px; 
-            text-align: center; font-size: 20px; font-weight: bold; border-radius: 0 0 20px 20px; 
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 20px; font-weight: bold; border-radius: 0 0 20px 20px; 
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: relative;
         }
 
-        .status-dot {
-            position: absolute; right: 20px; top: 25px; width: 12px; height: 12px;
-            background-color: #fbbf24; border-radius: 50%; box-shadow: 0 0 8px rgba(251, 191, 36, 0.8);
-            transition: background-color 0.3s;
-        }
-        .status-dot.online { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.8); }
+        /* User Profile Style */
+        .user-profile { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid white; }
+        .btn-logout { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
+
+        .status-dot { width: 12px; height: 12px; background-color: #fbbf24; border-radius: 50%; }
+        .status-dot.online { background-color: #10b981; }
 
         /* Toast Loading Indicator */
         .toast-loading {
@@ -150,8 +150,12 @@
 <body>
 
     <div class="header">
-        DompetKu
-        <div id="status-dot" class="status-dot" title="Connecting to Firebase..."></div>
+        <div class="user-profile">
+            <img id="user-img" class="user-avatar" src="" alt="">
+            <span id="user-name">Memuat...</span>
+            <div id="status-dot" class="status-dot"></div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Keluar</button>
     </div>
 
     <div id="toast-loading" class="toast-loading">
@@ -232,47 +236,76 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script>
         // ==========================================
-        // 1. KONFIGURASI FIREBASE KAMU DI SINI
+        // 1. KONFIGURASI FIREBASE
         // ==========================================
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyATTNNn1r1ORYTFWdljzd4dessh8t33SbI",
-  authDomain: "ppk-ormawa-42e49.firebaseapp.com",
-  databaseURL: "https://ppk-ormawa-42e49-default-rtdb.firebaseio.com",
-  projectId: "ppk-ormawa-42e49",
-  storageBucket: "ppk-ormawa-42e49.firebasestorage.app",
-  messagingSenderId: "629446223042",
-  appId: "1:629446223042:web:092fe22b2bdb868ba2c75b",
-  
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyATTNNn1r1ORYTFWdljzd4dessh8t33SbI",
+            authDomain: "ppk-ormawa-42e49.firebaseapp.com",
+            databaseURL: "https://ppk-ormawa-42e49-default-rtdb.firebaseio.com",
+            projectId: "ppk-ormawa-42e49",
+            storageBucket: "ppk-ormawa-42e49.firebasestorage.app",
+            messagingSenderId: "629446223042",
+            appId: "1:629446223042:web:092fe22b2bdb868ba2c75b"
+        };
 
-        // Inisialisasi Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const transactionsRef = db.ref('dompetku_transactions');
-
-        // Indikator Status Koneksi Firebase
-        const connectedRef = firebase.database().ref(".info/connected");
-        connectedRef.on("value", (snap) => {
-            const dot = document.getElementById('status-dot');
-            if (snap.val() === true) {
-                dot.classList.add('online');
-                dot.title = "Firebase Online";
-            } else {
-                dot.classList.remove('online');
-                dot.title = "Offline / Connecting...";
-            }
-        });
-
-        // ==========================================
-        // 2. VARIABEL & INISIALISASI UI
-        // ==========================================
+        const auth = firebase.auth();
+        let transactionsRef;
         let transactions = [];
         let idYangAkanDihapus = null;
 
+        // ==========================================
+        // 2. PROTEKSI & MULTI-USER LOGIC
+        // ==========================================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('user-img').src = user.photoURL;
+                document.getElementById('user-name').innerText = user.displayName;
+                
+                // Point ke folder transaksi unik milik User
+                transactionsRef = db.ref('users/' + user.uid + '/transactions');
+                
+                // Jalankan listener data
+                startListening();
+            } else {
+                window.location.href = "b2.html"; 
+            }
+        });
+
+        function logout() { auth.signOut(); }
+
+        function startListening() {
+            showLoading(true);
+            transactionsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                transactions = [];
+                if (data) {
+                    for (let key in data) { transactions.push(data[key]); }
+                }
+                localStorage.setItem("dompetku_data", JSON.stringify(transactions));
+                updateUI();
+                showLoading(false);
+            });
+
+            // Indikator Status Koneksi
+            db.ref(".info/connected").on("value", (snap) => {
+                const dot = document.getElementById('status-dot');
+                if (snap.val() === true) {
+                    dot.classList.add('online');
+                } else {
+                    dot.classList.remove('online');
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. UI & FORM LOGIC (SAMA SEPERTI ASLINYA)
+        // ==========================================
         flatpickr("#date", {
             locale: "id", dateFormat: "Y-m-d", defaultDate: "today", disableMobile: "true", altInput: true, altFormat: "d M Y",    
         });
@@ -308,112 +341,75 @@ const firebaseConfig = {
         }
 
         // ==========================================
-        // 3. LOGIKA APLIKASI UTAMA (RENDER UI)
+        // 4. LOGIKA PERHITUNGAN (SAMA SEPERTI ASLINYA)
         // ==========================================
-    let showingAll = false;
-                function updateUI() {
-    const list = document.getElementById('transaction-list');
-    list.innerHTML = '';
-    
-    // 1. HITUNG SEMUA DATA TERLEBIH DAHULU (Agar nilai saldo tidak berubah)
-    let totalIncome = 0, totalExpense = 0, totalDebt = 0;
-    
-    transactions.forEach(trx => {
-        let amount = parseFloat(trx.amount);
-        if (trx.type === 'pemasukan') totalIncome += amount;
-        else if (trx.type === 'pengeluaran') totalExpense += amount;
-        else if (trx.type === 'hutang') totalDebt += amount;
-    });
-
-    // 2. LOGIKA TAMPILAN (Baru kita potong di sini)
-    if (transactions.length === 0) {
-        list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
-    }
-
-    const reversedTransactions = [...transactions].reverse();
-    const hutangList = reversedTransactions.filter(trx => trx.type === 'hutang');
-    const nonHutangList = reversedTransactions.filter(trx => trx.type !== 'hutang');
-    const sortedTransactions = [...hutangList, ...nonHutangList];
-
-    // Potong hanya untuk tampilan, tidak mempengaruhi variabel total di atas
-    const displayTransactions = showingAll ? sortedTransactions : sortedTransactions.slice(0, 3);
-
-    displayTransactions.forEach((trx) => {
-        let amount = parseFloat(trx.amount);
-        let colorClass = ''; 
-        let symbol = '';
-
-        if (trx.type === 'pemasukan') { colorClass = 'text-income'; symbol = '+ '; } 
-        else if (trx.type === 'pengeluaran') { colorClass = 'text-expense'; symbol = '- '; } 
-        else if (trx.type === 'hutang') { colorClass = 'text-debt'; symbol = '+ '; }
-
-        const card = document.createElement('div');
-        card.className = `trx-item is-${trx.type}`;
-        card.innerHTML = `
-            <div class="trx-info">
-                <span class="trx-desc">${trx.desc} ${trx.type === 'hutang' ? '<small>(Piutang)</small>' : ''}</span>
-                <span class="trx-date">${formatTanggal(trx.date)}</span>
-            </div>
-            <div class="trx-right">
-                <span class="trx-amount ${colorClass}">${symbol}${formatRupiah(amount)}</span>
-                <button class="btn-delete" onclick="bukaModalHapus('${trx.id}')">Hapus</button>
-            </div>
-        `;
-        list.appendChild(card);
-    });
-
-    // 3. TOMBOL TAMPILKAN
-    if (transactions.length > 3) {
-        const btnSeeMore = document.createElement('button');
-        btnSeeMore.style.cssText = "width:100%; padding:10px; margin-top:10px; background:none; border:1px dashed #6c5ce7; color:#6c5ce7; border-radius:8px; cursor:pointer; font-weight:bold;";
-        btnSeeMore.innerText = showingAll ? "Tampilkan Sedikit" : `Lihat Semua (${transactions.length})`;
-        btnSeeMore.onclick = () => {
-            showingAll = !showingAll;
-            updateUI(); // Panggil ulang fungsi ini
-        };
-        list.appendChild(btnSeeMore);
-    }
-
-    // 4. UPDATE UI SALDO (Menggunakan hasil hitung poin nomor 1)
-    const saldoSekarang = totalIncome - totalExpense - totalDebt;
-    const totalSaldo = totalIncome - totalExpense;
-
-    document.getElementById('saldo-sekarang').innerText = formatRupiah(saldoSekarang);
-    document.getElementById('total-saldo-kotor').innerText = formatRupiah(totalSaldo); 
-    document.getElementById('total-income').innerText = formatRupiah(totalIncome);
-    document.getElementById('total-expense').innerText = formatRupiah(totalExpense);
-    document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
-}
-
-
-        // ==========================================
-        // 4. FIREBASE REALTIME LISTENER (PENGGANTI FETCH SPREADSHEET)
-        // ==========================================
-        // Fitur ini otomatis memperbarui UI setiap ada perubahan di database, sangat cepat!
-        showLoading(true);
-        transactionsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            transactions = [];
+        let showingAll = false;
+        function updateUI() {
+            const list = document.getElementById('transaction-list');
+            list.innerHTML = '';
             
-            if (data) {
-                // Firebase menyimpan data dalam bentuk objek unik, kita ubah kembali jadi array
-                for (let key in data) {
-                    transactions.push(data[key]);
-                }
+            let totalIncome = 0, totalExpense = 0, totalDebt = 0;
+            
+            transactions.forEach(trx => {
+                let amount = parseFloat(trx.amount);
+                if (trx.type === 'pemasukan') totalIncome += amount;
+                else if (trx.type === 'pengeluaran') totalExpense += amount;
+                else if (trx.type === 'hutang') totalDebt += amount;
+            });
+
+            if (transactions.length === 0) {
+                list.innerHTML = '<div class="empty-state">Belum ada transaksi tercatat.</div>';
             }
-            
-            // Simpan backup lokal untuk offline mode
-            localStorage.setItem("dompetku_data", JSON.stringify(transactions));
-            updateUI();
-            showLoading(false);
-        });
+
+            const reversedTransactions = [...transactions].reverse();
+            const displayTransactions = showingAll ? reversedTransactions : reversedTransactions.slice(0, 3);
+
+            displayTransactions.forEach((trx) => {
+                let amount = parseFloat(trx.amount);
+                let colorClass = '', symbol = '';
+
+                if (trx.type === 'pemasukan') { colorClass = 'text-income'; symbol = '+ '; } 
+                else if (trx.type === 'pengeluaran') { colorClass = 'text-expense'; symbol = '- '; } 
+                else if (trx.type === 'hutang') { colorClass = 'text-debt'; symbol = '+ '; }
+
+                const card = document.createElement('div');
+                card.className = `trx-item is-${trx.type}`;
+                card.innerHTML = `
+                    <div class="trx-info">
+                        <span class="trx-desc">${trx.desc} ${trx.type === 'hutang' ? '<small>(Piutang)</small>' : ''}</span>
+                        <span class="trx-date">${formatTanggal(trx.date)}</span>
+                    </div>
+                    <div class="trx-right">
+                        <span class="trx-amount ${colorClass}">${symbol}${formatRupiah(amount)}</span>
+                        <button class="btn-delete" onclick="bukaModalHapus('${trx.id}')">Hapus</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+
+            if (transactions.length > 3) {
+                const btnSeeMore = document.createElement('button');
+                btnSeeMore.style.cssText = "width:100%; padding:10px; margin-top:10px; background:none; border:1px dashed #6c5ce7; color:#6c5ce7; border-radius:8px; cursor:pointer; font-weight:bold;";
+                btnSeeMore.innerText = showingAll ? "Tampilkan Sedikit" : `Lihat Semua (${transactions.length})`;
+                btnSeeMore.onclick = () => { showingAll = !showingAll; updateUI(); };
+                list.appendChild(btnSeeMore);
+            }
+
+            const saldoSekarang = totalIncome - totalExpense - totalDebt;
+            const totalSaldo = totalIncome - totalExpense;
+
+            document.getElementById('saldo-sekarang').innerText = formatRupiah(saldoSekarang);
+            document.getElementById('total-saldo-kotor').innerText = formatRupiah(totalSaldo); 
+            document.getElementById('total-income').innerText = formatRupiah(totalIncome);
+            document.getElementById('total-expense').innerText = formatRupiah(totalExpense);
+            document.getElementById('total-debt').innerText = formatRupiah(totalDebt);
+        }
 
         // ==========================================
-        // 5. TAMBAH KE FIREBASE
+        // 5. CRUD FIREBASE
         // ==========================================
         document.getElementById('transaction-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             showLoading(true);
             const rawAmount = document.getElementById('amount').value.replace(/\./g, '');
             const newId = String(new Date().getTime());
@@ -426,64 +422,34 @@ const firebaseConfig = {
                 date: document.getElementById('date').value
             };
 
-            // Reset form UI
-            document.getElementById('desc').value = '';
-            document.getElementById('amount').value = '';
-            document.getElementById('type').value = 'pemasukan';
-            document.getElementById('select-text').innerText = '📈 Pemasukan';
-            const semuaOpsi = document.querySelectorAll('.sheet-option');
-            semuaOpsi.forEach(opt => opt.classList.remove('selected'));
-            document.querySelector('.opt-pemasukan').classList.add('selected');
-
-            // Set ke Firebase secara real-time
-            transactionsRef.child(newId).set(newTrx)
-                .then(() => {
-                    console.log("Transaksi berhasil disimpan!");
-                })
-                .catch((error) => {
-                    console.error("Error menambah transaksi: ", error);
-                    alert("Gagal menyimpan transaksi ke Firebase.");
-                });
+            transactionsRef.child(newId).set(newTrx).then(() => {
+                document.getElementById('transaction-form').reset();
+                document.getElementById('select-text').innerText = '📈 Pemasukan';
+                document.getElementById('type').value = 'pemasukan';
+                showLoading(false);
+            });
         });
 
-        // ==========================================
-        // 6. HAPUS DARI FIREBASE
-        // ==========================================
         function bukaModalHapus(id) {
             idYangAkanDihapus = String(id);
-            const modal = document.getElementById('modalHapus');
-            modal.style.display = 'flex';
-            setTimeout(() => { modal.classList.add('show'); }, 10);
+            document.getElementById('modalHapus').style.display = 'flex';
+            setTimeout(() => { document.getElementById('modalHapus').classList.add('show'); }, 10);
         }
 
         function tutupModalHapus() {
-            const modal = document.getElementById('modalHapus');
-            modal.classList.remove('show');
-            setTimeout(() => { modal.style.display = 'none'; }, 200);
+            document.getElementById('modalHapus').classList.remove('show');
+            setTimeout(() => { document.getElementById('modalHapus').style.display = 'none'; }, 200);
             idYangAkanDihapus = null;
         }
 
         document.getElementById('btn-konfirm-hapus').addEventListener('click', function() {
             if (!idYangAkanDihapus) return;
-
-            const targetId = String(idYangAkanDihapus);
-            tutupModalHapus();
             showLoading(true);
-
-            // Hapus spesifik anak (child) dari database
-            transactionsRef.child(targetId).remove()
-                .then(() => {
-                    console.log("Transaksi berhasil dihapus!");
-                })
-                .catch((error) => {
-                    console.error("Error menghapus transaksi: ", error);
-                    alert("Gagal menghapus dari Firebase.");
-                });
+            transactionsRef.child(idYangAkanDihapus).remove().then(() => {
+                tutupModalHapus();
+                showLoading(false);
+            });
         });
-
-        // Coba muat dari local storage dulu jika internet lambat
-        const localData = localStorage.getItem("dompetku_data");
-        if (localData) { transactions = JSON.parse(localData); updateUI(); }
     </script>
 </body>
 </html>

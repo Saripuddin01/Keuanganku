@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DompetKu</title>
+    <style>
+        /* --- TEMA SERAGAM DENGAN DASHBOARD --- */
+        :root {
+            --primary: #4f46e5;      
+            --primary-dark: #1e3a8a;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif; }
+        
+        body { 
+            background-color: var(--bg-body); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- CARD LOGIN --- */
+        .login-card { 
+            background-color: var(--bg-card); 
+            padding: 40px 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
+            width: 100%; 
+            max-width: 380px; 
+            text-align: center; 
+            position: relative;
+            overflow: hidden;
+            transition: opacity 0.3s;
+        }
+
+        /* Aksen Bar Atas mirip Header Dashboard */
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+        }
+
+        .login-card h2 { 
+            color: var(--primary-dark); 
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px; 
+        }
+
+        .login-card p { 
+            color: var(--text-muted); 
+            font-size: 14px; 
+            margin-bottom: 30px; 
+        }
+
+        /* --- INPUT STYLE --- */
+        .form-group { text-align: left; margin-bottom: 15px; }
+        
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid var(--border-color); 
+            border-radius: 12px; 
+            font-size: 14px; 
+            background: #f9fafb;
+            outline: none; 
+            transition: all 0.3s ease;
+        }
+
+        input:focus { 
+            border-color: var(--primary); 
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        /* --- BUTTON STYLE --- */
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            border: none; 
+            border-radius: 12px; 
+            font-weight: bold; 
+            font-size: 15px;
+            cursor: pointer; 
+            margin-bottom: 12px; 
+            transition: all 0.2s; 
+        }
+
+        .btn-login { 
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white; 
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+        }
+
+        .btn-login:active { transform: scale(0.98); }
+
+        .btn-register { 
+            background-color: transparent; 
+            color: var(--primary); 
+            border: 2px solid var(--primary);
+            margin-bottom: 0;
+        }
+
+        /* --- DIVIDER --- */
+        .divider { 
+            display: flex; 
+            align-items: center; 
+            margin: 25px 0; 
+            color: var(--text-muted); 
+            font-size: 12px; 
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+        .divider::before { margin-right: 15px; }
+        .divider::after { margin-left: 15px; }
+
+        /* --- SOCIAL LOGIN --- */
+        .btn-google { 
+            background-color: white; 
+            color: var(--text-main); 
+            border: 2px solid var(--border-color); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-google:active { background-color: #f3f4f6; }
+
+        /* --- NOTIFIKASI --- */
+        #pesan-notif { 
+            margin-top: 20px; 
+            padding: 12px; 
+            border-radius: 10px; 
+            font-size: 13px; 
+            font-weight: 600;
+            display: none; 
+        }
+        .sukses { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .error { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        /* --- LOADING OVERLAY --- */
+        #overlay { 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg-body); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 9999; 
+        }
+        .spinner { 
+            width: 45px; height: 45px; 
+            border: 5px solid #e5e7eb; 
+            border-top: 5px solid var(--primary-dark); 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; color: var(--primary-dark); font-weight: 700; font-size: 14px;">MENGECEK SESI...</p>
+    </div>
+
+    <div class="login-card" id="card-konten" style="opacity: 0;">
+        <h2>DompetKu</h2>
+        <p>Kelola keuanganmu dengan lebih pintar</p>
+
+        <form id="form-auth">
+            <div class="form-group">
+                <input type="email" id="email" placeholder="Alamat Email" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Password (Min. 6 Karakter)">
+            </div>
+            <button type="button" class="btn-login" id="btn-login">Masuk ke Dasbor</button>
+            <button type="button" class="btn-register" id="btn-register">Buat Akun Baru</button>
+        </form>
+
+        <div class="divider">Atau</div>
+        
+        <button type="button" class="btn-google" id="btn-google">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="">
+            Masuk dengan Google
+        </button>
+
+        <div id="pesan-notif"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyATTNNn1r1ORYTFWdljzd4dessh8t33SbI",
+            authDomain: "ppk-ormawa-42e49.firebaseapp.com",
+            databaseURL: "https://ppk-ormawa-42e49-default-rtdb.firebaseio.com",
+            projectId: "ppk-ormawa-42e49",
+            storageBucket: "ppk-ormawa-42e49.firebasestorage.app",
+            messagingSenderId: "629446223042",
+            appId: "1:629446223042:web:092fe22b2bdb868ba2c75b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const providerGoogle = new GoogleAuthProvider();
+
+        const overlay = document.getElementById('overlay');
+        const cardKonten = document.getElementById('card-konten');
+        const pesanNotif = document.getElementById('pesan-notif');
+
+        function tampilkanPesan(teks, jenis) {
+            pesanNotif.style.display = 'block'; 
+            pesanNotif.innerText = teks; 
+            pesanNotif.className = jenis;
+        }
+
+        // 1. AUTO-REDIRECT LOGIC
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = "index.html";
+            } else {
+                overlay.style.display = 'none';
+                cardKonten.style.opacity = '1';
+            }
+        });
+
+        // 2. LOGIN EMAIL
+        document.getElementById('btn-login').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if(!email || !password) return tampilkanPesan('Isi email & password!', 'error');
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    tampilkanPesan('Login Berhasil!', 'sukses');
+                    setTimeout(() => { window.location.href = "index.html"; }, 1000);
+                })
+                .catch((err) => tampilkanPesan('Email/Password salah!', 'error'));
+        });
+
+        // 3. REGISTER
+        document.getElementById('btn-register').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if(password.length < 6) return tampilkanPesan('Password minimal 6 karakter!', 'error');
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => tampilkanPesan('Akun dibuat! Silakan klik Masuk.', 'sukses'))
+                .catch((err) => tampilkanPesan('Gagal: ' + err.message, 'error'));
+        });
+
+        // 4. GOOGLE LOGIN
+        document.getElementById('btn-google').addEventListener('click', () => {
+            signInWithPopup(auth, providerGoogle)
+                .then(() => { window.location.href = "index.html"; })
+                .catch((err) => tampilkanPesan('Gagal Google Login', 'error'));
+        });
+    </script>
+</body>
+</html>
